@@ -86,7 +86,10 @@ export default function Paginateddata() {
     }
 
     const [open, setOpen] = React.useState(false);
+
     const handleClose = () => setOpen(false);
+
+    
     return (
       <>
         <Paper elevation={5} >

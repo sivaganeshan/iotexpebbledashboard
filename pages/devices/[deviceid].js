@@ -2,10 +2,11 @@ import React, {useState, useEffect} from "react";
 import Head from "next/head";
 
 import Header from "../../components/Header";
-import { Box, CircularProgress, Paper, Typography} from "@material-ui/core";
+import { Box, } from "@material-ui/core";
 import Paginateddata from "../../components/Paginateddata";
 import sampleData from "../../sample";
-import dynamic from 'next/dynamic'
+import dynamic from 'next/dynamic';
+import {GetDeviceData} from '../../qraphqlHelper';
 
 const AreaChartComponent = dynamic(
   () => import('../../components/charts/AreaChart'),
@@ -136,6 +137,14 @@ let getGyroStats=()=>{
     });
     return gyroStats;
 }
+
+useEffect(()=>{
+    async function getData()
+    {
+        await GetDeviceData(100000000000009);
+    }
+    getData();
+},[]);
 
   return (
     <>
