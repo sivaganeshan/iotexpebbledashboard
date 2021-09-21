@@ -3,6 +3,8 @@ import fetch from 'cross-fetch';
 import gql from 'graphql-tag';
 import _ from 'lodash';
 import DataStore from "./DataStore";
+import {decodeFromProto} from "./utility";
+import { v4 as uuidv4 } from 'uuid';
 
 const defaultOptions = {
     watchQuery: {
@@ -15,9 +17,6 @@ const defaultOptions = {
     },
   }
 
-const MapperToDeviceData=(data)=>{
-
-};
 export async function GetDeviceData(deviceId) {
     const client = new ApolloClient({
         link: new HttpLink({
@@ -41,7 +40,25 @@ export async function GetDeviceData(deviceId) {
         `,
     });
 
+    //Parsing logic
+    let rawResponse = _.get(data, 'data.deviceRecords');
+    let decodedResponse = [];
+    if(rawResponse && rawResponse.length>0){
+        rawResponse.map((item)=>{
+            if(item && item.raw){
+                let decodedData = decodeFromProto(item.raw);
+                if(decodedData.latitude && decodedData.longitude){
+                    decodedData.latitude = (new Int32Array([decodedData.latitude]))[0];
+                    decodedData.longitude = (new Int32Array([decodedData.longitude]))[0];
+                }
+                decodedData.timestamp = item.timestamp;
+                decodedData.id = uuidv4();
+                decodedResponse.push(decodedData);
+            }
+        })
+    }
+
     let staticInstance = DataStore.getInstance();
-    staticInstance.setGlobalStatsData(_.get(data, 'data.deviceRecords'));
+    staticInstance.setGlobalStatsData(decodedResponse);
 }
 

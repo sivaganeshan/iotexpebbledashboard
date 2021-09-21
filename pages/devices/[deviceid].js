@@ -1,12 +1,16 @@
 import React, {useState, useEffect} from "react";
 import Head from "next/head";
-
 import Header from "../../components/Header";
-import { Box, } from "@material-ui/core";
+import { Box, CircularProgress, Paper} from "@material-ui/core";
 import Paginateddata from "../../components/Paginateddata";
-import sampleData from "../../sample";
 import dynamic from 'next/dynamic';
 import {GetDeviceData} from '../../qraphqlHelper';
+import DataStore from "../../DataStore";
+import {getGyroStats,getAccelroStats,GetSnrStats,
+    GetPressureStats,GetLightStats,GetHumidityStats,
+    GetBatteryStats,GetGasResistance,GetTemperatures} from "../../utility";
+
+import {useRouter} from 'next/router';
 
 const AreaChartComponent = dynamic(
   () => import('../../components/charts/AreaChart'),
@@ -20,130 +24,33 @@ const MultiAreaChartComponent = dynamic(
 
 
 
-export default function Home() {
+export default function DeviceRecords() {
   // const[decodedData, SetDecodedData] = useState();
 
   // useEffect(()=>{
   //   SetDecodedData(decodeFromProto());
 
   // },[])
-    
-
-  let GetTemperatures=()=>{
-    let temperatures =[];
-
-    sampleData.map((item)=>{
-        if(parseInt(item.temperature2) ){
-            temperatures.push(parseInt(item.temperature2));
-        }
-    })
-    return temperatures;
-  }
-
-  let GetGasResistance=()=>{
-    let gasResistance =[];
-
-    sampleData.map((item)=>{
-        if(parseInt(item.gasResistance) ){
-            gasResistance.push(parseInt(item.gasResistance));
-        }
-    })
-    return gasResistance;
-  }
-
-  let GetBatteryStats=()=>{
-    let batteryStats =[];
-
-    sampleData.map((item)=>{
-        if(parseInt(item.vbat)){
-            batteryStats.push(parseInt(item.vbat));
-        }
-    })
-    return batteryStats;
-  }
-
-  let GetHumidityStats=()=>{
-    let humidityStats =[];
-
-    sampleData.map((item)=>{
-        if(parseInt(item.humidity)){
-            humidityStats.push(parseInt(item.humidity));
-        }
-    })
-    return humidityStats;
-  }
-
-  let GetLightStats=()=>{
-    let lightStats =[];
-
-    sampleData.map((item)=>{
-        if(parseInt(item.light)){
-            lightStats.push(parseInt(item.light));
-        }
-    })
-    return lightStats;
-  }
-
-  let GetPressureStats=()=>{
-    let pressureStats =[];
-
-    sampleData.map((item)=>{
-        if(parseInt(item.pressure)){
-            pressureStats.push(parseInt(item.pressure));
-        }
-    })
-    return pressureStats;
-  }
-
-  let GetSnrStats=()=>{
-    let snrStats =[];
-
-    sampleData.map((item)=>{
-        if(parseInt(item.snr)){
-            snrStats.push(parseInt(item.snr));
-        }
-    })
-    return snrStats;
-  }
-
-  let getAccelroStats=()=>{
-      let accStats = {
-          x:[],
-          y:[],
-          z:[]
-      }
-      sampleData.map((item)=>{
-        if(item.accelerometer){
-            accStats.x.push(item.accelerometer[0]?parseInt(item.accelerometer[0]):0);
-            accStats.y.push(item.accelerometer[1]?parseInt(item.accelerometer[1]):0);
-            accStats.z.push(item.accelerometer[2]?parseInt(item.accelerometer[2]):0);
-        }
-    })
-    return accStats;
-  }
-
-let getGyroStats=()=>{
-    let gyroStats = {
-        x:[],
-        y:[],
-        z:[]
-    }
-    sampleData.map((item)=>{
-        if(item.accelerometer){
-            gyroStats.x.push(item.gyroscope[0]?parseInt(item.gyroscope[0]):0);
-            gyroStats.y.push(item.gyroscope[1]?parseInt(item.gyroscope[1]):0);
-            gyroStats.z.push(item.gyroscope[2]?parseInt(item.gyroscope[2]):0);
-        }
-    });
-    return gyroStats;
-}
+const[isLoading, setIsLoading] = useState(true);    
+const[currentdeviceData , setCurrentDeviceData] = useState(null); 
+let router = useRouter();
+ 
 
 useEffect(()=>{
-    async function getData()
+   function getData()
     {
-        await GetDeviceData(100000000000009);
+        let { deviceId } = router.query;
+        if(!deviceId){
+            deviceId = window.location.href.split("devices/")[1];   
+        }
+        GetDeviceData(deviceId).then(()=>{
+            let staticInstance = DataStore.getInstance();
+            setCurrentDeviceData(staticInstance.getGlobalStatsData());
+            setIsLoading(false);
+        })
     }
-    getData();
+     getData();
+    
 },[]);
 
   return (
@@ -156,6 +63,11 @@ useEffect(()=>{
         />
       </Head>
       <Header />
+      {isLoading?
+      <Box elevation={5} style={{display:'flex', justifyContent:'center', flexDirection:'column',
+      alignItems:'center', padding:'1rem', margin:'0.25rem'}}>
+       <CircularProgress component="div" color="secondary"/>
+      </Box>:
       <Box
         sx={{
           display: "flex",
@@ -168,8 +80,10 @@ useEffect(()=>{
             display: "flex",
             justifyContent: "flex-start",
           }}
-        >
-          <Paginateddata />
+        >{
+            currentdeviceData && <Paginateddata currentData = {currentdeviceData}/>
+        }
+          
         </Box>
         <Box
           sx={{
@@ -190,19 +104,19 @@ useEffect(()=>{
           }}>
             <Box>
               <AreaChartComponent
-                data={GetTemperatures()}
+                data={GetTemperatures(currentdeviceData)}
                 dataVariable="Temperature"
               />
             </Box>
             <Box>
               <AreaChartComponent
-                data={GetGasResistance()}
+                data={GetGasResistance(currentdeviceData)}
                 dataVariable="Gas Resistance"
               />
             </Box>
             <Box>
               <AreaChartComponent
-                data={GetBatteryStats()}
+                data={GetBatteryStats(currentdeviceData)}
                 dataVariable="Battery"
               />
             </Box>
@@ -214,19 +128,19 @@ useEffect(()=>{
           }}>
           <Box>
             <AreaChartComponent
-              data={GetHumidityStats()}
+              data={GetHumidityStats(currentdeviceData)}
               dataVariable="Humidity"
             />
           </Box>
           <Box>
             <AreaChartComponent
-              data={GetLightStats()}
+              data={GetLightStats(currentdeviceData)}
               dataVariable="Light"
             />
           </Box>
           <Box>
             <AreaChartComponent
-              data={GetPressureStats()}
+              data={GetPressureStats(currentdeviceData)}
               dataVariable="Pressure"
             />
           </Box>
@@ -240,16 +154,16 @@ useEffect(()=>{
           }}>
             <Box >
             <AreaChartComponent
-              data={GetSnrStats()}
+              data={GetSnrStats(currentdeviceData)}
               dataVariable="Snr"
             />
           </Box>
           <Box>
-          <MultiAreaChartComponent data={getAccelroStats()}
+          <MultiAreaChartComponent data={getAccelroStats(currentdeviceData)}
               dataVariable="AcceleroMeter" />
           </Box>
           <Box>
-          <MultiAreaChartComponent data={getGyroStats()}
+          <MultiAreaChartComponent data={getGyroStats(currentdeviceData)}
               dataVariable="GyroScope" />
           </Box>
 
@@ -257,6 +171,8 @@ useEffect(()=>{
           </Box>
         </Box>
       </Box>
+    
+        }
     </>
   );
 }

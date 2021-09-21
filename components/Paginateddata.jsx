@@ -1,12 +1,12 @@
 import React from "react";
 import { Paper,Box,List, Divider,makeStyles,Typography, Modal, CircularProgress} from "@material-ui/core";
-import sampleData from '../sample';
 import Pagination from "@material-ui/lab/Pagination";
 import { v4 as uuidv4 } from 'uuid';
 import Dataelement from './Dataelement';
 import Smoldataelement from './Smoldataelement';
 import Mapelement from "./Mapelement";
 import Dataelementtype2 from "./Dataelementtype2"
+
 //Images
 import tempImg from '../assets/temperature.svg';
 import gasImg from '../assets/mask.svg';
@@ -54,23 +54,16 @@ const style = {
     p:4
   };
 
-export default function Paginateddata() { 
+export default function Paginateddata({currentData}) { 
 
     let classes = useStyles();
-
-    let currentData = [];
-    [...sampleData].map((item)=>{
-        item.latitude = (new Int32Array([item.latitude]))[0];
-        item.longitude = (new Int32Array([item.longitude]))[0];
-        currentData.push({...item, id:uuidv4()});
-    });
-
+    
     const[pebbleStates, SetPebbleStates] =  React.useState(currentData);
     const [selected, setSelected] = React.useState(null);
     const itemsPerPage = 8;
     const [page, setPage] = React.useState(1);
-    const [noOfPages] = React.useState(
-      Math.ceil(pebbleStates.length / itemsPerPage)
+    const [noOfPages] = React.useState( 
+       Math.ceil(currentData.length / itemsPerPage)
     );
 
     const handleChange = (event, value) => {
@@ -79,8 +72,6 @@ export default function Paginateddata() {
 
     let modalPopup=(id)=>{
         let selectedData = pebbleStates.filter((item)=> item.id ===id);
-        console.log("clicked id :"+id + " selected id: "+selectedData[0].id + " latitude & langituted :"
-        + selectedData[0].latitude+" "+selectedData[0].longitude);
         setSelected(selectedData[0]);
         setOpen(true);
     }
@@ -89,7 +80,7 @@ export default function Paginateddata() {
 
     const handleClose = () => setOpen(false);
 
-    
+
     return (
       <>
         <Paper elevation={5} >
@@ -164,7 +155,7 @@ export default function Paginateddata() {
                         />
                         <Smoldataelement
                           imgSource={gasImg}
-                          dataValue={item.gasResistance}
+                          dataValue={item.gasresistance}
                           dataVariable="Gas"
                         />
                       </Box>
@@ -218,7 +209,7 @@ export default function Paginateddata() {
                   />
                   <Dataelement
                     imgSource={gasImg}
-                    dataValue={selected.gasResistance}
+                    dataValue={selected.gasresistance}
                     dataVariable="Gas "
                   />
                   <Dataelement
@@ -245,11 +236,11 @@ export default function Paginateddata() {
                   />
                   <Dataelementtype2 
                     imgSource={acceleroImg}
-                    dataValue={selected.gyroscope}
+                    dataValue={selected.gyroscopeList}
                     dataVariable="Accelerometer"/>
                   <Dataelementtype2 
                     imgSource={gyroImg}
-                    dataValue={selected.accelerometer}
+                    dataValue={selected.accelerometerList}
                     dataVariable="Gyroscope"/>
                 </Box>
               </Box>
