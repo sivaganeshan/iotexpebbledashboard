@@ -1,6 +1,6 @@
 # Iotex Pebble Dashboard
 
-### Tasks completed:
+### Completed Tasks:
 
 #### Basic setup before Data Dashboard:
 1. Go through the airmeet video demonstration and understand how pebble devices work, get the overall understanding
