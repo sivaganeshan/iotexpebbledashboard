@@ -31,7 +31,7 @@ Demo : https://drive.google.com/file/d/1Fwta1_7wzUGtEOLJLSzLnmMawv5rY2GD/view?us
 Code is written with the help of nextjs framework
 1. checkout the code
 1. npm install
-1. npm run dev
+1. npm run dev (for windows OS , to work with node_options, refer this: https://stackoverflow.com/a/56129407)
 1. code will run at localhost:3000
 1. To test the workflow use this IMEI id: 100000000000009
 
