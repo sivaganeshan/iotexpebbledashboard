@@ -60,7 +60,7 @@ export default function Paginateddata({currentData}) {
     
     const[pebbleStates, SetPebbleStates] =  React.useState(currentData);
     const [selected, setSelected] = React.useState(null);
-    const itemsPerPage = 8;
+    const itemsPerPage = 10;
     const [page, setPage] = React.useState(1);
     const [noOfPages] = React.useState( 
        Math.ceil(currentData.length / itemsPerPage)
@@ -99,7 +99,7 @@ export default function Paginateddata({currentData}) {
             </Typography>
           </Box>
 
-          <Paper elevation={5} style={{display:'flex', justifyContent:'center', flexDirection:'column',
+          {/* <Paper elevation={5} style={{display:'flex', justifyContent:'center', flexDirection:'column',
            alignItems:'center', padding:'1rem', margin:'0.25rem'}}>
             <CircularProgress component="div" color="secondary"/>
             <Typography component="div"
@@ -107,7 +107,7 @@ export default function Paginateddata({currentData}) {
                   style={{ marginRight: "4px", fontSize: "1rem" }}>
                         Subscribed to GraphGL Server
                     </Typography>
-           </Paper>
+           </Paper> */}
 
           <List>
             {pebbleStates

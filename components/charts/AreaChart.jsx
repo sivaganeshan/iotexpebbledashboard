@@ -39,7 +39,7 @@ export default function AreaChart({data, dataVariable}) {
         return(
             [
                 {
-                  name: {dataVariable},
+                  name: dataVariable,
                   data: [...data]
                 }
               ]
