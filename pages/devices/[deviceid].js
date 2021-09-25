@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import Head from "next/head";
 import Header from "../../components/Header";
-import { Box, CircularProgress, Paper} from "@material-ui/core";
+import { Box, CircularProgress, Paper, Modal, Card, CardContent} from "@material-ui/core";
 import Paginateddata from "../../components/Paginateddata";
 import dynamic from 'next/dynamic';
 import {GetDeviceData} from '../../qraphqlHelper';
@@ -31,25 +31,49 @@ export default function DeviceRecords() {
   //   SetDecodedData(decodeFromProto());
 
   // },[])
-const[isLoading, setIsLoading] = useState(true);    
+const[isLoading, setIsLoading] = useState(true);
+const[isError, setIsError] = useState(false);    
 const[currentdeviceData , setCurrentDeviceData] = useState(null); 
 let router = useRouter();
+
+
+let ValidateIMEI=(val)=>{
+
+    let validationPaased = false;
+
+    if(parseInt(val) && val.length ===15){
+        validationPaased = true;
+        setIsError(false);
+    }
+    else{
+        validationPaased = false;
+        setIsError(true);
+    }
+    
+    return validationPaased;
+}
+
+const handleClose = () => setIsError(false);
  
 
 useEffect(()=>{
+
+    let { deviceId } = router.query;
+    if(!deviceId){
+        deviceId = window.location.href.split("devices/")[1];   
+    }
    function getData()
     {
-        let { deviceId } = router.query;
-        if(!deviceId){
-            deviceId = window.location.href.split("devices/")[1];   
-        }
         GetDeviceData(deviceId).then(()=>{
             let staticInstance = DataStore.getInstance();
             setCurrentDeviceData(staticInstance.getGlobalStatsData());
             setIsLoading(false);
-        })
+        });
     }
-     getData();
+    if(ValidateIMEI(deviceId)){
+        getData();
+    }
+     
     
 },[]);
 
@@ -173,6 +197,22 @@ useEffect(()=>{
       </Box>
     
         }
+        <Box sx={{display:'flex', flexDirection:"row", justifyContent:'center', alignItems:'center'}}>
+         <Modal
+          open={isError}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+                <Paper elevation={5} style={{ top:'50%', left:'50%' , position:'absolute',transform: 'translate(-50%,-50%)' , margin:'auto'}}>
+                    <Card>
+                        <CardContent>
+                        Error in fetching device data, Check the IMEI number and try again!!!
+                        </CardContent>
+                        </Card>
+                </Paper>
+           
+            </Modal>
+        </Box>
     </>
   );
 }
