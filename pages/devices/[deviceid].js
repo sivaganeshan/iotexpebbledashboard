@@ -66,8 +66,15 @@ useEffect(()=>{
     {
         GetDeviceData(deviceId).then(()=>{
             let staticInstance = DataStore.getInstance();
-            setCurrentDeviceData(staticInstance.getGlobalStatsData());
-            setIsLoading(false);
+            let deviceData = staticInstance.getGlobalStatsData();
+            if(deviceData && deviceData.length>0){
+                setCurrentDeviceData(deviceData);
+                setIsLoading(false);
+            }
+            else{
+                setIsError(true);
+            }
+            
         });
     }
     if(ValidateIMEI(deviceId)){
