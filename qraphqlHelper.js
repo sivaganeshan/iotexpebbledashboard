@@ -57,7 +57,7 @@ export async function GetDeviceData(deviceId) {
             }
         })
     }
-
+    decodedResponse = decodedResponse.sort((a,b)=> b.timestamp - a.timestamp);
     let staticInstance = DataStore.getInstance();
     staticInstance.setGlobalStatsData(decodedResponse);
 }
